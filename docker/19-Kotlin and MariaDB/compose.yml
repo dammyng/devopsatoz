@@ -1,0 +1,13 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:mariadb://mariadb:3306/myapp?user=root&password=example
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: myapp
+      MYSQL_ROOT_PASSWORD: example
