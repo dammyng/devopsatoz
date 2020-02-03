@@ -1,0 +1,41 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: myapp
+      DB_USERNAME: postgres
+      DB_PASSWORD: example
+    depends_on:
+      - db
+    restart: always
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+    restart: always
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+volumes:
+  db-data:
