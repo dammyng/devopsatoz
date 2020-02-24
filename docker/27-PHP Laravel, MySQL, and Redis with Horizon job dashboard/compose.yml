@@ -1,0 +1,41 @@
+version: '3'
+services:
+  app:
+    build: .
+    environment:
+      APP_ENV: production
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: myapp
+      DB_USERNAME: root
+      DB_PASSWORD: example
+      CACHE_DRIVER: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      HORIZON_BASE_URI: /horizon
+      HORIZON_TERMINATE_WORKERS: true
+    depends_on:
+      - db
+      - redis
+    restart: always
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: myapp
+  redis:
+    image: redis:latest
+  horizon:
+    build: .
+    environment:
+      APP_ENV: production
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      HORIZON_BASE_URI: /horizon
+    depends_on:
+      - app
+      - redis
+    ports:
+      - "8080:80"
+    restart: always
