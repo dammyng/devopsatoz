@@ -1,0 +1,29 @@
+version: '3'
+services:
+  app:
+    build: .
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://db:27017/myapp
+      REDIS_URI: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"
+    restart: always
+  db:
+    image: mongo:latest
+    volumes:
+      - db-data:/data/db
+  redis:
+    image: redis:latest
+  worker:
+    build: .
+    environment:
+      NODE_ENV: production
+      REDIS_URI: redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+    restart: always
