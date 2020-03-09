@@ -1,0 +1,43 @@
+version: '3'
+services:
+  app:
+    build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: myapp.settings.production
+      DATABASE_URL: postgresql://postgres:example@db:5432/myapp
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+      - worker
+    ports:
+      - "8000:8000"
+    restart: always
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: myapp
+  redis:
+    image: redis:latest
+  worker:
+    build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: myapp.settings.production
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+      - db
+    restart: always
+  flower:
+    build: .
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      FLOWER_PORT: 5555
+    depends_on:
+      - worker
+    ports:
+      - "5555:5555"
+    restart: always
