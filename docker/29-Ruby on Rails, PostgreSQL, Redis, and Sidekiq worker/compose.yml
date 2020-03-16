@@ -1,0 +1,29 @@
+version: '3'
+services:
+  app:
+    build: .
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://postgres:example@db:5432/myapp
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    restart: always
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: myapp
+  redis:
+    image: redis:latest
+  sidekiq:
+    build: .
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+      - db
+    restart: always
