@@ -1,0 +1,24 @@
+version: '3'
+services:
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://postgres:example@db:5432/myapp
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+    restart: always
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: myapp
+  rabbitmq:
+    image: rabbitmq:latest
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
