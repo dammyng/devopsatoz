@@ -1,0 +1,33 @@
+version: '3'
+services:
+  web:
+    image: openjdk:16-jdk-alpine
+    command: java -jar app.jar
+    environment:
+      - DATABASE_URL=jdbc:mysql://db:3306/mydb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=example
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - prometheus
+    ports:
+      - "8080:8080"
+    restart: always
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=mydb
+      - MYSQL_ROOT_PASSWORD=example
+    volumes:
+      - db-data:/var/lib/mysql
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+volumes:
+  db-data:
