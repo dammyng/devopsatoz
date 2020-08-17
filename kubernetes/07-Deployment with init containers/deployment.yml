@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      initContainers:
+      - name: init-db
+        image: myapp-db-init:latest
+        command: ["./init-db.sh"]
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      containers:
+      - name: web
+        image: myapp-web:latest
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        emptyDir: {}
