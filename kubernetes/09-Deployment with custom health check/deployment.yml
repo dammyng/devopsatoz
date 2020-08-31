@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: web
+        image: myapp-web:latest
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - |
+              response=$(curl -s -w "%{http_code}" http://localhost:8000 -o /dev/null)
+              if [ "$response" -ne "200" ]; then
+                exit 1
+              fi
+          initialDelaySeconds: 15
+          periodSeconds: 10
