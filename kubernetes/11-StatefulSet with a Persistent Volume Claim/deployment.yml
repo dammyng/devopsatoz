@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: myapp
+spec:
+  serviceName: myapp
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: db
+        image: myapp-db:latest
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: myapp-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: myapp-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
