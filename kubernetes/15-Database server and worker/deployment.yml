@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-worker
+  template:
+    metadata:
+      labels:
+        app: db-worker
+    spec:
+      containers:
+      - name: db
+        image: mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: example_password
+      - name: worker
+        image: python:latest
+        command: ["python", "worker.py"]
+        volumeMounts:
+        - name: workdir
+          mountPath: /app
+      volumes:
+      - name: workdir
+        configMap:
+          name: worker-config
