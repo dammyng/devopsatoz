@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lb-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: lb-api
+  template:
+    metadata:
+      labels:
+        app: lb-api
+    spec:
+      containers:
+      - name: lb
+        image: haproxy:latest
+        ports:
+        - containerPort: 80
+      - name: api
+        image: node:latest
+        command: ["npm", "start"]
+        volumeMounts:
+        - name: appdir
+          mountPath: /app
+      volumes:
+      - name: appdir
+        emptyDir: {}
