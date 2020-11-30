@@ -1,0 +1,77 @@
+apiVersion: v2
+name: myapp
+description: A simple web application
+version: 1.0.0
+appVersion: "1.0"
+dependencies:
+- name: nginx
+  version: "1.0.0"
+  repository: https://charts.bitnami.com/bitnami
+- name: mysql
+  version: "8.0.27"
+  repository: https://charts.bitnami.com/bitnami
+- name: redis
+  version: "15.8.0"
+  repository: https://charts.bitnami.com/bitnami
+- name: memcached
+  version: "3.14.2"
+  repository: https://charts.bitnami.com/bitnami
+- name: mongodb
+  version: "10.3.3"
+  repository: https://charts.bitnami.com/bitnami
+
+---
+# Deployment manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-container
+        image: nginx:1.16
+        ports:
+        - containerPort: 80
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: mypassword
+        - name: REDIS_PASSWORD
+          value: mypassword
+        - name: MEMCACHED_PASSWORD
+          value: mypassword
+        - name: MONGODB_ROOT_PASSWORD
+          value: mypassword
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: {{ .Release.Name }}-nginx-configmap
+
+---
+# Service manifest
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Release.Name }}
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
